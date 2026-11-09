@@ -293,7 +293,7 @@ export class SidecarProxy {
       socket.pipe(upstreamSocket);
     };
     const upstreamSocket = isHttps
-      ? tls.connect({ host: this.#upstream.hostname, port, servername: this.#upstream.hostname,
+      ? tls.connect({ host: this.#upstream.hostname, port, servername: sniName(this.#upstream.hostname),
         rejectUnauthorized: this.#config.upstream.rejectUnauthorized }, onConnect)
       : net.connect({ host: this.#upstream.hostname, port }, onConnect);
     const close = () => { socket.destroy(); upstreamSocket.destroy(); };
@@ -307,14 +307,25 @@ export class SidecarProxy {
   /*  Helpers                                     */
   /* -------------------------------------------- */
 
+  /**
+   * Headers that tell Foundry about the client-facing request. Foundry v14 refuses a POST unless
+   * Sec-Fetch-Site says same-origin or the Origin matches the address Foundry believes it serves. Browsers omit
+   * Sec-Fetch-* on plain-HTTP LAN addresses, and behind the sidecar Foundry's own address differs from the
+   * player's, so when the browser's Origin is exactly the sidecar's own origin the request is marked same-origin.
+   */
   #forwardedHeaders(req: http.IncomingMessage): Record<string, string> {
     const proto = this.#config.listen.tls ? "https" : "http";
     const prior = req.headers["x-forwarded-for"];
-    return {
+    const out: Record<string, string> = {
       "x-forwarded-proto": proto,
       "x-forwarded-host": String(req.headers.host ?? ""),
       "x-forwarded-for": [prior, req.socket.remoteAddress].filter(Boolean).join(", ")
     };
+    const origin = req.headers.origin;
+    if ( !req.headers["sec-fetch-site"] && origin && req.headers.host && origin === `${proto}://${req.headers.host}` ) {
+      out["sec-fetch-site"] = "same-origin";
+    }
+    return out;
   }
 
   #request(req: http.IncomingMessage, headers: http.IncomingHttpHeaders): http.ClientRequest {
@@ -327,7 +338,7 @@ export class SidecarProxy {
       path: req.url,
       headers: { ...headers, ...this.#forwardedHeaders(req) },
       agent: this.#agent,
-      servername: isHttps ? this.#upstream.hostname : undefined
+      servername: isHttps ? sniName(this.#upstream.hostname) : undefined
     };
     return (isHttps ? https : http).request(options);
   }
@@ -369,4 +380,13 @@ function readFile(file: string): Buffer {
 
 function require_fs() {
   return process.getBuiltinModule("node:fs") as typeof import("node:fs");
+}
+
+/**
+ * The TLS server name (SNI) to send upstream. Only hostnames qualify: Node refuses an IP address here, so an
+ * upstream like https://192.168.1.10:30000 connects without SNI.
+ */
+function sniName(hostname: string): string | undefined {
+  const host = hostname.replace(/^\[|\]$/g, "");
+  return net.isIP(host) ? undefined : host;
 }

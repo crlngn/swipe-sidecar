@@ -60,14 +60,28 @@ const DEFAULTS: SidecarConfig = {
 };
 
 /**
+ * Read a JSON file, tolerating the UTF-8 byte order mark that Windows PowerShell and some editors write.
+ */
+export function readJsonFile(file: string): any {
+  return JSON.parse(fs.readFileSync(file, "utf8").replace(/^﻿/, ""));
+}
+
+/**
  * Load the sidecar configuration from disk, merging over defaults.
  * The path comes from the first CLI argument, then SWIPE_SIDECAR_CONFIG, then ./swipe-sidecar.config.json.
+ * A config that is not valid JSON stops startup with the file path and the parser's message.
  */
 export function loadConfig(): SidecarConfig {
   const candidate = process.argv[2] ?? process.env.SWIPE_SIDECAR_CONFIG ?? path.join(ROOT, "swipe-sidecar.config.json");
   const file = path.resolve(candidate);
   let parsed: Partial<SidecarConfig> = {};
-  if ( fs.existsSync(file) ) parsed = JSON.parse(fs.readFileSync(file, "utf8"));
+  if ( fs.existsSync(file) ) {
+    try { parsed = readJsonFile(file); }
+    catch(err) {
+      console.error(`[swipe-sidecar] ${file} is not valid JSON: ${(err as Error).message}`);
+      process.exit(1);
+    }
+  }
   else console.warn(`[swipe-sidecar] No config at ${file}, using defaults`);
   const config: SidecarConfigShape = {
     listen: { ...DEFAULTS.listen, ...parsed.listen },

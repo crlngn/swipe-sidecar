@@ -31,24 +31,27 @@ Swipe Sidecar is for **self-hosted** Foundry VTT v14: it runs as a second Node p
 
    ```bash
    npm start                                # uses ./swipe-sidecar.config.json
-   node src/index.ts /path/to/other.config.json
+   node start.mjs /path/to/other.config.json
    ```
 
    On first start Swipe Sidecar generates an API token, saves it in the config as `api.token`, and prints it once.
 6. **Tell Foundry about the new address.** In Foundry's `Config/options.json`, set `proxyPort` to Swipe Sidecar's port and `proxySSL` to `true` when Swipe Sidecar serves HTTPS, then restart Foundry, so invitation links point at Swipe Sidecar.
-7. **Connect.** Players open `https://<host>:<sidecar port>/join` instead of Foundry's port. Desktop players can keep using Foundry directly.
+7. **Open the port.** On Windows, allow Node (or the Foundry app, when you run Swipe Sidecar with it) through Windows Defender Firewall for the sidecar's port, on the network type you use (Windows often marks home Wi-Fi as Public). If you dismissed the prompt on first start, add the rule under Windows Security → Firewall & network protection → Allow an app through firewall. macOS asks once to accept incoming connections; say Allow.
+8. **Connect.** Players open `https://<host>:<sidecar port>/join` instead of Foundry's port. Desktop players can keep using Foundry directly.
 
 **No Node or npm install needed.** Swipe Sidecar's only required package, `ws`, ships with Foundry too, and Swipe Sidecar borrows Foundry's copy when it has none of its own (it looks in `foundry.installPath`, then in the desktop app around the running executable). GMs who use Foundry's desktop app can run Swipe Sidecar on the app's own built-in Node:
 
 ```bash
 # macOS
-ELECTRON_RUN_AS_NODE=1 "/Applications/Foundry Virtual Tabletop.app/Contents/MacOS/Foundry Virtual Tabletop" src/index.ts
+ELECTRON_RUN_AS_NODE=1 "/Applications/Foundry Virtual Tabletop.app/Contents/MacOS/Foundry Virtual Tabletop" start.mjs
 ```
 
 ```powershell
 # Windows (PowerShell)
-$env:ELECTRON_RUN_AS_NODE=1; & "C:\Program Files\Foundry Virtual Tabletop\Foundry Virtual Tabletop.exe" src\index.ts
+$env:ELECTRON_RUN_AS_NODE=1; & "C:\Program Files\Foundry Virtual Tabletop\Foundry Virtual Tabletop.exe" start.mjs | Out-Host
 ```
+
+On Windows the app is a windowed program, so PowerShell would hand the prompt back at once; `| Out-Host` makes it wait and show the log. This needs the desktop app of Foundry **v14**: v13's app carries Node 20, and `start.mjs` says so and stops.
 
 Without `npm install`, compressed textures stay off (see step 2). If `ws` is found nowhere, Swipe Sidecar still starts and passes sockets through unchanged, without the document policy, and says so in its log.
 
@@ -56,7 +59,7 @@ To keep Swipe Sidecar running across reboots, a process manager works well:
 
 ```bash
 npm install -g pm2
-pm2 start src/index.ts --name swipe-sidecar --interpreter node -- /path/to/swipe-sidecar.config.json
+pm2 start start.mjs --name swipe-sidecar --interpreter node -- /path/to/swipe-sidecar.config.json
 pm2 save && pm2 startup
 ```
 
@@ -83,6 +86,7 @@ For production, point Foundry's `options.json` at the sidecar with `proxyPort` a
 ## Layout
 
 ```
+start.mjs             launcher: checks the Node version, then loads src/index.ts
 src/index.ts          entry point
 src/deps.ts           finds `ws` in Swipe Sidecar's node_modules or Foundry's install
 src/proxy.ts          HTTP/WebSocket proxy, view and bundle rewriting

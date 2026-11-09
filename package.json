@@ -8,10 +8,10 @@
     "node": ">=24.0.0"
   },
   "bin": {
-    "swipe-sidecar": "./src/index.ts"
+    "swipe-sidecar": "./start.mjs"
   },
   "scripts": {
-    "start": "node src/index.ts",
+    "start": "node start.mjs",
     "dev": "node --watch-path=src --watch-path=client src/index.ts"
   },
   "license": "CC-BY-NC-4.0",
@@ -20,6 +20,6 @@
   },
   "optionalDependencies": {
     "basisu": "^1.16.3",
-    "sharp": "^0.34.5"
+    "sharp": "^0.35.5"
   }
 }

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { readJsonFile } from "./config.ts";
 
 /**
  * Client profiles: which modules a phone, tablet or desktop client loads.
@@ -86,7 +87,7 @@ export class ProfileStore {
   #load(): ProfileRules {
     let parsed: Partial<ProfileRules> = {};
     if ( fs.existsSync(this.#file) ) {
-      try { parsed = JSON.parse(fs.readFileSync(this.#file, "utf8")); } catch {}
+      try { parsed = readJsonFile(this.#file); } catch {}
     }
     const rule = (name: ProfileName): ProfileRule => ({
       ...DEFAULT_RULE,
@@ -135,7 +136,7 @@ export class ProfileStore {
       if ( !entry.isDirectory() && !entry.isSymbolicLink() ) continue;
       const file = path.join(this.#modulesDir, entry.name, "module.json");
       try {
-        const m = JSON.parse(fs.readFileSync(file, "utf8"));
+        const m = readJsonFile(file);
         const id = String(m.id ?? m.name ?? entry.name);
         this.#manifests.set(id, {
           id,
