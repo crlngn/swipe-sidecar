@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swipe Sidecar load report</title>
+<style>
+  :root { --bg: #1C1623; --panel: #241d2d; --line: #3a3145; --text: #e8e2ec; --muted: #aaa2b3; --accent: #b9a6d4; --warn: #d9ac5c; --ok: #8fc49b; --bad: #d97a7a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--line); display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; }
+  h1 { font-size: 1.25rem; font-weight: 400; margin: 0; }
+  h2 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+  main { padding: 1rem 1.5rem 3rem; display: grid; gap: 1rem; }
+  .muted { color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  td.num, th.num { text-align: right; }
+  tr.run { cursor: pointer; }
+  tr.run:hover, tr.run.selected { background: var(--panel); }
+  .pill { display: inline-block; padding: 0 0.5rem; border: 1px solid var(--line); border-radius: 999px; font-size: 0.75rem; color: var(--muted); }
+  .pill.bad { border-color: var(--bad); color: var(--bad); }
+  .pill.ok { border-color: var(--ok); color: var(--ok); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--line); padding: 0.75rem 1rem; overflow-x: auto; }
+  .bar { height: 6px; background: var(--accent); opacity: 0.8; }
+  .compare { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+  select, button { background: var(--panel); color: var(--text); border: 1px solid var(--line); padding: 0.3rem 0.6rem; font: inherit; }
+  code { color: var(--accent); }
+  .delta.up { color: var(--bad); } .delta.down { color: var(--ok); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Swipe Sidecar load report</h1>
+  <span class="muted" id="summary">loading…</span>
+</header>
+<main>
+  <section class="panel">
+    <div class="compare">
+      <strong>Runs</strong>
+      <span class="muted">click a run to inspect it; pick a second one to compare</span>
+      <button id="refresh">Refresh</button>
+      <button id="clearCompare" hidden>Clear comparison</button>
+    </div>
+    <div style="overflow-x:auto"><table id="runs"></table></div>
+  </section>
+  <section id="detail" hidden></section>
+</main>
+<script type="module" src="/swipe-sidecar/report.js"></script>
+</body>
+</html>

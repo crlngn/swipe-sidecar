@@ -1,0 +1,37 @@
+{
+  "listen": {
+    "port": 30001,
+    "host": "0.0.0.0",
+    "tls": {
+      "cert": "/path/to/cert.pem",
+      "key": "/path/to/key.pem"
+    }
+  },
+  "upstream": {
+    "url": "https://localhost:30000",
+    "rejectUnauthorized": false
+  },
+  "foundry": {
+    "installPath": "/path/to/foundryvtt",
+    "dataPath": "/path/to/foundrydata"
+  },
+  "features": {
+    "bundlePatches": true,
+    "touchRightClick": true,
+    "documentPolicy": true
+  },
+  "profiles": {
+    "default": "auto"
+  },
+  "textures": {
+    "enabled": true,
+    "caps": {
+      "phone": 2048,
+      "tablet": 2048,
+      "desktop": null
+    },
+    "minDimension": 1024,
+    "mipmaps": true,
+    "maxBytes": 1073741824
+  }
+}

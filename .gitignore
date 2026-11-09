@@ -1,0 +1,9 @@
+node_modules/
+*.log
+.DS_Store
+# local machine config (paths, certificates); commit swipe-sidecar.config.example.json instead
+swipe-sidecar.config.json
+# phone screenshots and scratch output from tools/
+tools/*.png
+data/
+data-*/

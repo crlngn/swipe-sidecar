@@ -1,0 +1,244 @@
+/* Swipe Sidecar overlay.
+   Loaded unlayered after foundry2.css, so it wins over every Foundry cascade layer. */
+
+/* Touch: keep pointer streams alive on things Foundry drags, and stop iOS callouts on the canvas. */
+#board,
+.window-header,
+.window-resizable-handle {
+  touch-action: none;
+}
+#board {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Tours: Foundry only centres the mid-screen step on body.game, and caps it at 400px.
+   Centre it on every view and keep it, and the anchored step tooltips, inside the viewport. */
+.tour-center-step {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: min(400px, calc(100vw - 1rem));
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
+}
+#tooltip.tour,
+.locked-tooltip.tour {
+  max-width: min(320px, calc(100vw - 10px));
+}
+/* The exit button is absolutely positioned top-right; keep wrapped titles from running under it. */
+.tour .step-title {
+  padding: 0 1.75rem;
+}
+
+/* Join page: one column on narrow viewports, user picker under the input. */
+@media (max-width: 720px) {
+  body.join {
+    --max-width: 100%;
+    --form-padding: 0.75rem;
+  }
+  body.join #join-game {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0 0.75rem;
+  }
+  /* Panel order on phones: join, game details, world description, return to setup. */
+  body.join #join-game-form { order: 1; }
+  body.join #join-game-details { order: 2; }
+  body.join #join-game-world { order: 3; grid-row: auto; grid-column: auto; }
+  body.join #join-game-setup { order: 4; }
+  body.join #world-description {
+    max-height: 35vh;
+  }
+  body.join #join-game-details .form-group > label {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  body.join #join-game-details .form-fields {
+    justify-content: flex-end;
+  }
+  body.join #autocomplete {
+    min-width: 0;
+    max-width: none;
+  }
+  /* The title is sized by --header-font-size and the header by --header-size, which do not track each other.
+     Let the header grow with its title so the first panel never sits under it. */
+  body.join #main-header {
+    --header-size: 64px;
+    --header-font-size: clamp(1.75rem, 9vw, 2.5rem);
+    height: auto;
+    min-height: var(--header-size);
+    padding: 0.5rem 0;
+    background-size: var(--header-size) var(--header-size);
+  }
+  body.join #main-header h1 {
+    line-height: 1.05;
+  }
+
+  /* Setup page: menu in flow instead of fixed top-right, stacked sidebar, single-column lists. */
+  body.setup {
+    padding: 0.5rem 0;
+    gap: 1rem;
+  }
+  body.setup #main-header {
+    --header-size: 56px;
+    --header-font-size: 1.5rem;
+    height: auto;
+    min-height: var(--header-size);
+    background-size: var(--header-size) var(--header-size);
+  }
+  #setup {
+    padding: 0 0.75rem;
+    gap: 1rem;
+    margin: 0;
+  }
+  #setup-menu {
+    --button-size: 36px;
+    position: sticky;
+    top: 0;
+    right: auto;
+    width: 100%;
+    z-index: 5;
+  }
+  #setup-menu #setup-menu-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0.25rem;
+  }
+  #setup-packages nav.tabs {
+    padding: 0.5rem 0.5rem 0;
+    gap: 0.25rem;
+  }
+  #setup-packages nav.tabs [data-tab] {
+    font-size: var(--font-size-18);
+  }
+  #setup-packages nav.tabs [data-tab] i {
+    font-size: var(--font-size-18);
+  }
+  /* Keep the full tab titles; the strip scrolls sideways with no visible scrollbar. */
+  #setup-packages nav.tabs {
+    flex: 0 0 auto;
+    min-height: fit-content;
+    flex-wrap: nowrap;
+    gap: 1.5rem;
+    padding: 0.75rem 1rem 0.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #setup-packages nav.tabs::-webkit-scrollbar {
+    display: none;
+  }
+  #setup-packages nav.tabs [data-tab] {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+  #setup-packages nav.tabs [data-tab] i {
+    display: none;
+  }
+  #setup-packages nav.tabs h2.divider::before,
+  #setup-packages nav.tabs h2.divider::after {
+    content: unset;
+  }
+  #setup-packages section.tab {
+    padding: 0.5rem;
+  }
+  #setup-packages header.controls {
+    gap: 0.5rem;
+  }
+  #setup-packages header.controls .filter {
+    flex: 1 1 100%;
+  }
+  #setup-packages header.controls button {
+    flex: 1 1 40%;
+  }
+  #setup-packages header.controls button#moduleCreate {
+    flex: 0 0 var(--control-height);
+  }
+  /* "1fr" is minmax(auto, 1fr): a long title forces the tile wider than the column. Allow shrinking. */
+  #setup-packages .package-list.gallery,
+  #setup-packages .package-list.tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #setup-packages .package-list .package {
+    min-width: 0;
+    max-width: 100%;
+  }
+  #setup-packages .package-list .package .package-title {
+    min-width: 0;
+  }
+  #setup-packages .package-list.details .package {
+    flex-direction: column;
+    height: auto;
+    flex-basis: auto;
+  }
+  #setup-packages .package-list.details .package .package-thumbnail {
+    flex: 0 0 160px;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--color-cool-4);
+  }
+  #setup-packages .package-list {
+    min-height: 0;
+  }
+  #setup-sidebar {
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+  }
+  #setup-sidebar #setup-sidebar-news,
+  #setup-sidebar #setup-sidebar-featured {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  #setup-sidebar #setup-sidebar-featured {
+    height: 160px;
+  }
+  #setup-sidebar #news-articles {
+    position: static;
+    height: auto;
+  }
+
+  /* Framed windows are scaled to fit by runtime/windows.js and pinch-zoomed with two fingers.
+     Pans stay with the browser; pinch is not a browser action here, so both pointers keep reporting. */
+  .application {
+    touch-action: pan-x pan-y;
+    max-width: min(100%, 480px);
+  }
+
+  /* Forms: a wide label pushes the control onto its own row, so both stay readable. Checkboxes and radios
+     keep their natural size beside the label; text, number, password, selects, ranges and buttons get room. */
+  .application .standard-form .form-group {
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+  }
+  .application .standard-form .form-group > label,
+  .application .standard-form .form-group > span.label {
+    flex: 1 1 200px;
+    min-width: 200px;
+    line-height: 1.5;
+  }
+  .application .standard-form .form-group > .form-fields {
+    flex: 1 1 200px;
+  }
+  .application .standard-form .form-group:has(> .form-fields > input[type="checkbox"]) > .form-fields,
+  .application .standard-form .form-group:has(> .form-fields > input[type="radio"]) > .form-fields,
+  .application .standard-form .form-group:has(> .form-fields > label > input[type="checkbox"]) > .form-fields,
+  .application .standard-form .form-group:has(> .form-fields > label > input[type="radio"]) > .form-fields {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+  }
+  .application .standard-form .form-fields > select,
+  .application .standard-form .form-fields > textarea,
+  .application .standard-form .form-fields > range-picker,
+  .application .standard-form .form-fields > button,
+  .application .standard-form .form-fields > input:not([type="checkbox"]):not([type="radio"]) {
+    min-width: 200px;
+    flex: 1 1 auto;
+  }
+}

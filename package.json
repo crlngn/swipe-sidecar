@@ -1,0 +1,25 @@
+{
+  "name": "swipe-sidecar",
+  "version": "0.1.0",
+  "description": "A same-origin sidecar that makes self-hosted Foundry VTT usable on phones and tablets.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "bin": {
+    "swipe-sidecar": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node src/index.ts",
+    "dev": "node --watch-path=src --watch-path=client src/index.ts"
+  },
+  "license": "CC-BY-NC-4.0",
+  "dependencies": {
+    "ws": "^8.21.3"
+  },
+  "optionalDependencies": {
+    "basisu": "^1.16.3",
+    "sharp": "^0.34.5"
+  }
+}
